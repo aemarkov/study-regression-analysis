@@ -1,5 +1,5 @@
 ﻿using System;
-namespace RegressionAnalysis
+namespace Mathematics
 {
 
 	//Исключение при вычислении логаримфма неправильного числа
