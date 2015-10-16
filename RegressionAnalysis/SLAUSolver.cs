@@ -38,7 +38,7 @@ namespace Mathematics
 
 		//Выполняет обратный ход метода Гаусса - расчет значений
 		//по полученной верхней треугольной матрице
-		public static double[] calcMatrix(double[][] matrix)
+		private static double[] calcMatrix(double[][] matrix)
 		{
 			//printMatrix(matrix);
 
@@ -64,7 +64,7 @@ namespace Mathematics
 		}
 
 		//Меняет местами две строки
-		public static void exange(double[][]matrix, int row)
+		private static void exange(double[][]matrix, int row)
 		{
 			int index = findMaxRow(matrix, row);
 			var temp = matrix[row];
@@ -91,7 +91,7 @@ namespace Mathematics
 
 		//Делит строку матрицы на ее первый элемент, чтобы
 		//первый элемент был 1
-		public static double[] divideRow(double[][] matrix, int row)
+		private static double[] divideRow(double[][] matrix, int row)
 		{
 			double a = matrix[row][row];
 			if (a == 0) throw new DivideByZeroException();

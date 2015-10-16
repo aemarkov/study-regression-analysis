@@ -36,7 +36,7 @@ namespace RegressionAnalysis
 				return;
 
 			var data = readData(dlg.FileName, new Func<double, double>[] { x => x, x2Lin, yLin });
-			var a = calcSLAUMatrix(data);
+			var a = convertOriginal(SLAUSolver.Solve(calcSLAUMatrix(data)), new Func<double, double>[] { x => x, x => x, x => x });
 			
 		}
 
@@ -89,15 +89,16 @@ namespace RegressionAnalysis
 		{
 			if (x2 <= 0)
 				throw new LogException(x2);
-			return x2; // Math.Log(x2);
+			return  Math.Log(x2);
 		}
 
 		double yLin(double y)
 		{
 			if (y <= 0)
 				throw new LogException(y);
-			return y;//  Math.Log(y);
+			return Math.Log(y);
 		}
+
 
 		//Вычисление матрицы коэффициентов и свободных членов для СЛАУ
 		double[][] calcSLAUMatrix(List<double[]> rawData)
@@ -176,6 +177,21 @@ namespace RegressionAnalysis
 			}
 
 			return A;
+		}
+
+
+		//Преобразует полученные коээфициенты обратно в исходные
+		//после замены переменной
+		double[] convertOriginal(double[] a, Func<double, double>[] convertors)
+		{
+			if (a.Length != convertors.Length) throw new WrongNumberOfVariablesException();
+
+			var newA = new double[a.Length];
+			for(int i =0; i<a.Length; i++)
+			{
+				newA[i] = convertors[i](a[i]);
+			}
+			return newA;
 		}
 	}
 }
