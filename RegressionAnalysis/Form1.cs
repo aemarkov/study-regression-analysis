@@ -35,28 +35,44 @@ namespace RegressionAnalysis
 			if (dlg.ShowDialog() != DialogResult.OK)
 				return;
 
-			var ra = new RegressionAnalisys(new Func<double, double>[] { x => x, x2Lin, yLin });
-			var rawData = readData(dlg.FileName, 2);
-			var a = ra.Analysis(rawData);
-
-			//Расчет характеристик
-			double dispersion = ra.CalcDispersion();
-			double avError = ra.CalcAverageError();
-			double fCrit = ra.CalcFCriterion();
-
-			//Вывод характеристик
-			txtDispertion.Text = dispersion.ToString("0.###E+000");
-			txtAvErr.Text = avError.ToString("0.###E+000");
-			txtFCrit.Text = fCrit.ToString("0.###E+000");
-
-			//Вывод коэффициентов
-			gridA.Columns.Clear();
-			gridA.Columns.Add("name", "Коэффициент");
-			gridA.Columns.Add("value", "Значение");
-
-			for(int i = 0; i<a.Length; i++)
+			try
 			{
-				gridA.Rows.Add("a" + i, a[i].ToString("N3"));
+				var ra = new RegressionAnalisys(new Func<double, double>[] { x => x, x2Lin, yLin });
+				var rawData = readData(dlg.FileName, 2);
+				var a = ra.Analysis(rawData);
+
+				//Расчет характеристик
+				double dispersion = ra.CalcDispersion();
+				double avError = ra.CalcAverageError();
+				double fCrit = ra.CalcFCriterion();
+
+				//Вывод характеристик
+				txtDispertion.Text = dispersion.ToString("0.###E+000");
+				txtAvErr.Text = avError.ToString("0.###E+000");
+				txtFCrit.Text = fCrit.ToString("0.###E+000");
+
+				//Вывод коэффициентов
+				gridA.Columns.Clear();
+				gridA.Columns.Add("name", "Коэффициент");
+				gridA.Columns.Add("value", "Значение");
+
+				for (int i = 0; i < a.Length; i++)
+				{
+					gridA.Rows.Add("a" + i, a[i].ToString("N3"));
+				}
+
+			}
+			catch (IOException exp)
+			{
+				MessageBox.Show(exp.Message, "Ошибка отрытия файла", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+			}
+			catch (LogException exp)
+			{
+				MessageBox.Show(exp.Message, "Ошибка вычисления", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+			}
+			catch (WrongNumberOfVariablesException exp)
+			{
+				MessageBox.Show(exp.Message, "Ошибка данных", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 			}
 		}
 
@@ -91,7 +107,6 @@ namespace RegressionAnalysis
 
 			using (var reader = new StreamReader(filename))
 			{
-				//По заголовоку определяем число переменных
 				string line = reader.ReadLine();
 				if (line == null) throw new IOException("Файл пуст");
 
