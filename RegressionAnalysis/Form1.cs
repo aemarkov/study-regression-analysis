@@ -37,7 +37,7 @@ namespace RegressionAnalysis
 
 			try
 			{
-				var ra = new RegressionAnalisys(new Func<double, double>[] { x => x, x2Lin, yLin });
+				var ra = new RegressionAnalisys(new Func<double, double>[] { x => x, x2Lin, yLin }, f);
 				var rawData = readData(dlg.FileName, 2);
 				var a = ra.Analysis(rawData);
 
@@ -93,6 +93,13 @@ namespace RegressionAnalysis
 			if (y <= 0)
 				throw new LogException(y);
 			return Math.Log(y);
+		}
+
+		//Функция, с которой работаем
+		double f(double[] a, double[] x)
+		{
+			if ((a.Length != 3) && (x.Length != 2)) throw new WrongNumberOfVariablesException();
+			return Math.Pow(x[1], a[2]) * Math.Exp(a[0] + a[1] * x[0]);
 		}
 
 		#endregion

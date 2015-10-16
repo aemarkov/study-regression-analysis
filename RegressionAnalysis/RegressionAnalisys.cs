@@ -11,6 +11,10 @@ namespace Mathematics
 	{
 		private Func<double, double>[] converters;
 
+		//Функция, с которой работает
+		//Коэффициенты, X, Y
+		private Func<double[], double[],  double> f;
+
 		private List<double[]> rawData;
 		private List<double[]> linData;
 		private double[] y;
@@ -20,9 +24,10 @@ namespace Mathematics
 		private int M;						//ЧИСЛО КОЭЭФИЦИЕНТОВ
 
 		//Создает объект, задавая функции преобразования
-		public RegressionAnalisys(Func<double, double>[] converters)
+		public RegressionAnalisys(Func<double, double>[] converters, Func<double[], double[], double> f)
 		{
 			this.converters = converters;
+			this.f = f;
 
 			//Конвертеры есть для x1, x2,...,Xm, Y
 			//Тут можно запутаться. M используется для индексации массивов 
@@ -38,10 +43,11 @@ namespace Mathematics
 		/// <returns>Массив коэффициентов</returns>
 		public double[] Analysis(List<double[]> data)
 		{
+			rawData = data;
 			N = data.Count;
 			linData = linearise(data, converters);
 			a = convertOriginal(SLAUSolver.Solve(calcSLAUMatrix(linData)), new Func<double, double>[] { x => x, x => x, x => x });
-			y = calcY(a, linData);
+			y = calcY(a, data);
 			return a;
 		}
 
@@ -52,7 +58,7 @@ namespace Mathematics
 			double d = 0;
 			for(int i = 0; i<N; i++)
 			{
-				var v = Math.Pow(linData[i][M] - y[i], 2);
+				var v = Math.Pow(rawData[i][m] - y[i], 2);
 				d += v;
 			}
 
@@ -65,9 +71,7 @@ namespace Mathematics
 		{
 			double err = 0;
 			for(int i = 0; i<N; i++)
-			{
-				err += Math.Abs((linData[i][M] - y[i]) / linData[i][M]);
-			}
+				err += Math.Abs((rawData[i][m] - y[i]) / rawData[i][m]);
 
 			return err / N * 100;
 		}
@@ -81,8 +85,8 @@ namespace Mathematics
 
 			//Вычисляем среднее значение Y экспериментального
 			avY = 0;
-			foreach (var row in linData)
-				avY += row[M]*row[M];
+			foreach (var row in rawData)
+				avY += row[m];
 			avY /= N;
 
 			//Дисперсия среднего
@@ -217,9 +221,7 @@ namespace Mathematics
 
 			for (int j = 0; j < data.Count; j++)
 			{
-				newY[j] = 0;
-				for (int i = 0; i < a.Length; i++)
-					newY[j] += data[j][i] * a[i];
+				newY[j] = f(a, data[j]);
 			}
 
 			return newY;
